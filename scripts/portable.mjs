@@ -1,0 +1,15 @@
+import { build, Platform, Arch } from 'electron-builder';
+import { execFileSync } from 'node:child_process';
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import './build.mjs';
+if (process.platform !== 'win32') throw new Error('The okronoom signing certificate requires Windows.');
+await build({ targets: Platform.WINDOWS.createTarget(['portable'], Arch.x64), config: path.resolve('electron-builder.cjs'), publish: 'never' });
+const files = [path.resolve('release/Wave History Portable.exe'), path.resolve('release/win-unpacked/Wave History.exe')];
+const quote = value => "'" + value.replaceAll("'", "''") + "'";
+const command = `$ErrorActionPreference='Stop'; Import-Module Microsoft.PowerShell.Security; $paths=@(${files.map(quote).join(',')}); $result=foreach($file in $paths){ $s=Get-AuthenticodeSignature -LiteralPath $file; if($s.Status -ne 'Valid' -or $s.SignerCertificate.Subject -ne 'CN=okronoom'){ throw ('Invalid release signature: '+$file) }; [pscustomobject]@{File=[System.IO.Path]::GetFileName($file);Status=[string]$s.Status;Publisher=$s.SignerCertificate.Subject;SHA256=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash;Bytes=(Get-Item -LiteralPath $file).Length} }; $result | ConvertTo-Json`;
+const env = { ...process.env }; delete env.PSModulePath;
+const result = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'AllSigned', '-Command', command], { env, encoding: 'utf8', windowsHide: true });
+const report = JSON.parse(result);
+await writeFile('release/signature-verification.json', JSON.stringify(report, null, 2));
+console.log(JSON.stringify(report, null, 2));

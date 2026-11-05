@@ -1,0 +1,12 @@
+node_modules/
+dist/
+artifacts/
+release/
+web-dist/
+assets/reference.png
+.env
+.env.*
+*.pfx
+*.pem
+*.key
+Wave History Data/

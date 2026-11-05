@@ -1,0 +1,3 @@
+# Preserve Authenticode bytes when cloning the signed launcher.
+*.ps1 -text
+*.bat text eol=crlf

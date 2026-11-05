@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; object-src 'none'">
+  <title>Wave History</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="identity"><svg viewBox="0 0 36 32" aria-hidden="true"><path d="M2 22 8 14 13 25 19 5 24 20 29 12 34 17M2 28 8 20 13 31 19 11 24 26 29 18 34 23"/></svg><div><h1>Wave History<span>01</span></h1><p>Звук обретает форму</p></div></div>
+    <nav class="web-only web-links" hidden aria-label="Проект"><a href="https://aiaa.pro/">На сайт</a><a href="https://github.com/antonstrobe/wave-history" target="_blank" rel="noopener">GitHub</a><a href="https://github.com/antonstrobe/wave-history/releases/latest/download/Wave.History.Portable.exe">Скачать для Windows</a></nav><div class="top-info"><span>3D АУДИОЛАНДШАФТ</span><i></i><span id="top-status">ОЖИДАНИЕ ИСТОЧНИКА</span></div>
+    <button id="fullscreen" class="icon-button" title="Только визуализация на весь экран (F11). Escape возвращает настройки." aria-label="Только визуализация на весь экран">⛶</button>
+  </header>
+  <main>
+    <section class="viewport" aria-label="Трёхмерная история спектра">
+      <div id="scene"></div>
+      <div class="scene-heading"><span class="eyebrow">СПЕКТР / ВРЕМЯ / АМПЛИТУДА</span><h2>История звука</h2><p id="scene-description">Каждая линия хранит мгновение.</p></div>
+      <div class="scene-stats"><span><i id="signal-dot"></i><b id="source-tag">НЕТ ДАННЫХ</b></span><span id="fps">0 FPS</span></div>
+      <div id="empty-state"><span class="empty-icon">∿</span><h3>Услышать. Увидеть.</h3><p>Включите музыку, видео или игру.<br>И наблюдайте, как звук становится рельефом.</p><button id="start-empty" class="primary">Подключить звук компьютера <span>↗</span></button><button id="demo-empty" class="text-button">Посмотреть демонстрацию</button></div>
+      <div class="axis frequency"><span>35 Гц</span><span>Низкие</span><span>Средние</span><span>Высокие</span><span>16 кГц</span></div>
+      <div class="scene-bottom"><span title="Shift + левая кнопка также перемещает сцену. Средняя кнопка меняет масштаб перетаскиванием. Двойной щелчок сбрасывает вид.">ЛКМ: вращение <span class="divider">/</span> ПКМ: сдвиг <span class="divider">/</span> Колесо: масштаб</span><button id="reset-camera" class="text-button" title="Вернуть исходное положение камеры и центр сцены. Также работает двойной щелчок по сцене.">↺ Сбросить вид</button></div>
+      <div id="message" role="status" aria-live="polite" hidden></div>
+    </section>
+    <aside><section class="panel-section web-only browser-help" hidden><h3>Захват в браузере</h3><p id="browser-support">Откройте музыку в соседней вкладке. Нажмите «Захват выключен», выберите вкладку и включите передачу звука.</p><a class="browser-example" href="example.html" target="_blank" rel="noopener">Открыть пример со звуком ↗</a><details><summary>Как попробовать</summary><ol><li>Откройте пример и включите тестовый звук.</li><li>Здесь включите захват и выберите вкладку примера.</li><li>Отметьте «Передавать звук вкладки», подтвердите выбор и вернитесь к визуализатору.</li></ol><p>Для звука всего ПК выберите экран и передачу системного аудио, если браузер предлагает этот вариант. На компьютере используйте Chrome или Edge.</p></details></section>
+      <section class="panel-section preset-section"><div class="section-title"><span>◈</span><h3>Вариант визуализации</h3></div><label for="visual-preset" class="control-label">Выберите понравившийся вид</label><select id="visual-preset" title="Переключить вариант визуализации. Захват звука продолжит работать."><option value="radial">Круговые волны</option><option value="center">Звук из центра</option><option value="original">Исходная лента</option><option value="transparent">Прозрачные волны</option><option value="stereo">Стереозеркало</option><option value="hill">Мягкий холм</option><option value="mountains">Полёт над горами</option><option value="custom" disabled>Свои настройки</option></select><div id="preset-active" class="preset-active">✓ Выбран: Круговые волны</div><p id="preset-description" class="effect-help">Единый волновой рельеф с широким центром. Звук расходится кругами и плавно исчезает.</p></section>
+      <section class="panel-section source-section"><div class="section-title"><span>01</span><h3>Источник звука</h3></div><div class="source-card"><span class="monitor-icon">▣</span><div><strong id="source-title">Звук компьютера</strong><p id="source-device">Выход Windows по умолчанию</p></div></div><button id="capture" class="toggle" aria-pressed="false" title="Захват сейчас выключен. Нажмите для подключения звука компьютера."><span class="state-mark">○</span><span>Захват выключен</span></button><div class="level-label"><span id="signal-label">Нет данных</span><span id="db">-- dB</span></div><div class="meter"><div id="meter-fill"></div></div><p class="small-note" id="source-note">Аудио обрабатывается на этом ПК.<br>Запись и отправка звука не ведутся.</p></section>
+      <section class="panel-section"><div class="section-title"><span>02</span><h3>Глубина времени</h3></div><label class="control-label" for="interval">Между срезами <output id="interval-value">50 мс</output></label><input id="interval" type="range" min="25" max="100" step="25" value="50" title="Расстояние между измерениями во времени"><div class="range-labels"><span>25 мс</span><span id="slice-rate">20 срезов / сек</span><span>100 мс</span></div><label class="control-label second-control" for="history">Длительность истории <output id="history-value">12 сек</output></label><input id="history" type="range" min="4" max="20" step="2" value="12" title="Количество секунд звука в видимой истории"><div class="history-summary"><span id="row-count">240</span> последовательных срезов</div></section>
+      <section class="panel-section"><div class="section-title"><span>03</span><h3>Форма волн</h3></div><label class="control-label" for="gain">Высота <output id="gain-value">1.5×</output></label><input id="gain" type="range" min="0.3" max="3" step="0.1" value="1.5" title="Высота рельефа, не влияет на громкость звука"><label class="control-label second-control" for="smoothing">Сглаживание <output id="smoothing-value">20%</output></label><input id="smoothing" type="range" min="0" max="80" step="5" value="20" title="Сглаживание между последовательными измерениями"><div class="control-label second-control">Направление линий</div><div class="segmented" role="group" aria-label="Направление линий"><button id="longitudinal" aria-pressed="true" class="selected" title="Выбраны дорожки вдоль времени">✓ Дорожки</button><button id="slices" aria-pressed="false" title="Показать каждый срез спектра отдельной линией">Срезы</button></div></section>
+      <section class="panel-section transport"><button id="pause" class="toggle" aria-pressed="false" title="Пауза сейчас выключена. Нажмите, чтобы остановить историю."><span class="state-mark">○</span><span>Пауза выключена</span></button><div class="utility-row"><button id="clear" title="Очистить накопленную историю волн">Очистить</button><button id="demo" aria-pressed="false" title="Демонстрация выключена. Нажмите для показа синтетических волн.">Демо выключено</button></div></section>
+      <section class="panel-section effects">
+        <div class="section-title"><span>04</span><h3>Стерео и эффекты</h3></div>
+        <label class="effect-row"><input id="mirror" type="checkbox" checked aria-describedby="mirror-help"><span id="mirror-status">Стереозеркало включено</span></label>
+        <p class="effect-help" id="mirror-help">Левый канал слева, правый справа. Бас в центре, высокие частоты по краям.</p>
+        <label class="effect-row"><input id="taper" type="checkbox" checked aria-describedby="taper-help"><span id="taper-status">Затухание следа включено</span></label>
+        <p class="effect-help" id="taper-help">Удаляющиеся волны постепенно становятся прозрачнее. Их сформированная высота и рисунок сохраняются.</p>
+        <label class="effect-row"><input id="variation" type="checkbox" checked aria-describedby="variation-help"><span id="variation-status">Лёгкая асимметрия включена</span></label>
+        <p class="effect-help" id="variation-help">Плавные небольшие отклонения рисунка двух каналов. Закрепляются за волной, не дрожат и не меняют звук.</p>
+        <label class="control-label" for="variation-amount">Визуальная вариация <output id="variation-value">6%</output></label>
+        <input id="variation-amount" type="range" min="0" max="8" step="1" value="6" title="Сила плавных отклонений рисунка. Звук не меняется.">
+        <div class="range-labels"><span>Без добавления</span><span>Едва заметно</span></div>
+        <label class="effect-row"><input id="black-surface" type="checkbox" checked aria-describedby="black-help"><span id="black-status">Чёрная поверхность включена</span></label>
+        <p class="effect-help" id="black-help">Регулирует видимость дальних линий. В режиме гор также меняет прозрачность склонов.</p>
+        <label class="control-label second-control" for="transparency">Прозрачность чёрного <output id="transparency-value">35%</output></label>
+        <input id="transparency" type="range" min="0" max="100" step="5" value="35" title="0%: скрытая часть линий закрыта. 100%: все линии видны насквозь.">
+        <div class="range-labels"><span>Непрозрачно</span><span>Насквозь</span></div>
+        <label class="effect-row second-control"><input id="random-colors" type="checkbox" aria-describedby="colors-help"><span id="colors-status">Случайные цвета выключены</span></label>
+        <p class="effect-help" id="colors-help">Плавные переходы между случайными палитрами.</p>
+        <label class="effect-row"><input id="mountains" type="checkbox" aria-describedby="mountains-help"><span id="mountains-status">Горный рельеф выключен</span></label>
+        <p class="effect-help" id="mountains-help">Звуковой спектр превращается в протяжённые горы со склонами.</p>
+        <label class="effect-row"><input id="flight" type="checkbox" aria-describedby="flight-help"><span id="flight-status">Полёт выключен</span></label>
+        <p class="effect-help" id="flight-help">Автокамера над потоком волн. Выключите полёт, чтобы снова управлять мышью.</p>
+        <button id="clean-fullscreen" class="clean-fullscreen" title="Скрыть все надписи и панели и занять весь экран. Escape: вернуться.">⛶ Только визуализация</button>
+        <p class="effect-help">F11: полный экран. Escape: вернуть настройки.</p>
+      </section>
+      <footer><span class="footer-mark">W / H</span><span>Звук становится формой.<br>Мгновения остаются волнами.</span></footer>
+    </aside>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
+
+
+
+
